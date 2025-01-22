@@ -3,3 +3,7 @@ export type Todo = {
   label: string;
   isComplete: boolean;
 }
+
+export type View = {
+  view: 'all' | 'completed' | 'active';
+}
