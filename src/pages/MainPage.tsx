@@ -5,7 +5,8 @@ type Props = {};
 
 type Todo = {
   id: string;
-  label: string
+  label: string;
+  isComplete: boolean;
 }
 
 const MainPage: FC<Props> = () => {
@@ -16,16 +17,32 @@ const MainPage: FC<Props> = () => {
 
   const handleNewTodoPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newTodoLabel !== '') {
-      setTodos(todos => [...todos, { id: nanoid(), label: newTodoLabel }]);
+      setTodos(todos => [...todos, { id: nanoid(), label: newTodoLabel, isComplete: false }]);
       setNewTodoLabel('');
     }
   };
 
+  const toggleTodoComplete = (id: string) => {
+    setTodos(todos =>
+      todos.map(todo =>
+        todo.id === id ? { ...todo, isComplete: !todo.isComplete } : todo
+      )
+    );
+  };
+
+  const handleClearClick = () => {
+    setTodos(todos.filter(todo => !todo.isComplete));
+  }
+
   return <div>
-    <ul>
-      {todos.map(todo => <li key={todo.id}>{todo.label}</li>)}
-    </ul>
+    <div>
+      {todos.map(todo =>
+        <div key={todo.id}>
+          <input type='checkbox' checked={todo.isComplete} onChange={() => toggleTodoComplete(todo.id)} /> {todo.label}
+        </div>)}
+    </div>
     <input value={newTodoLabel} onChange={handleNewTodoLabel} onKeyDown={handleNewTodoPress} />
+    <button onClick={handleClearClick}>Clear completed</button>
   </div>
 }
 
