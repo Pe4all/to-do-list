@@ -4,6 +4,4 @@ export type Todo = {
   isComplete: boolean;
 }
 
-export type View = {
-  view: 'all' | 'completed' | 'active';
-}
+export type View = 'all' | 'completed' | 'active';

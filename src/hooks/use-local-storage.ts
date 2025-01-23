@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 const UseLocalStorage = <TState>(key: string, newState: TState) => {
   const [state, setState] = useState<TState>(() => {
     const stateStr = window.localStorage.getItem(key);
-    return stateStr ? JSON.parse(stateStr) as TState : newState;
+    return stateStr ? (JSON.parse(stateStr) as TState) : newState;
   });
 
   useEffect(() => {
@@ -11,6 +11,6 @@ const UseLocalStorage = <TState>(key: string, newState: TState) => {
   }, [key, state]);
 
   return [state, setState] as const;
-}
+};
 
 export default UseLocalStorage;
