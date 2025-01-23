@@ -31,7 +31,7 @@
 3. Запуcтите проект:
 
    ```npm
-   npm run dev
+   npm run start
 
 ## Тестирование
 
