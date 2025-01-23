@@ -145,6 +145,8 @@ const MainPage: FC<Props> = ({ todos, setTodos, view, setView }) => {
     <Wrapper>
       <Input
         placeholder="What needs to be done?"
+        aria-label="What needs to be done?"
+        type="text"
         value={newTodoLabel}
         onChange={handleNewTodoLabel}
         onKeyDown={handleNewTodoPress}

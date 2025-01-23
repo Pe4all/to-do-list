@@ -1,66 +1,85 @@
-// import '@testing-library/jest-dom';
-// import { render, fireEvent, waitFor } from '@testing-library/react';
-// import MainPage from './MainPage';
-// import { vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { render, fireEvent, screen } from '@testing-library/react';
+import MainPage from './MainPage';
+import { vi } from 'vitest';
 
-// interface Todo {
-//   id: string;
-//   label: string;
-//   isComplete: boolean;
-// }
+interface Todo {
+  id: string;
+  label: string;
+  isComplete: boolean;
+}
 
-// describe('MainPage component', () => {
-//   const initialTodos: Todo[] = [
-//     { id: '1', label: 'Task 1', isComplete: false },
-//     { id: '2', label: 'Task 2', isComplete: true },
-//   ];
+describe('MainPage component', () => {
+  const initialTodos: Todo[] = [
+    { id: '1', label: 'Task 1', isComplete: false },
+    { id: '2', label: 'Task 2', isComplete: true },
+  ];
+
+  it('renders todos correctly', () => {
+    const { getByText } = render(
+      <MainPage todos={initialTodos} setTodos={() => { }} view="all" setView={() => { }} />
+    );
+
+    expect(getByText('Task 1')).toBeInTheDocument();
+    expect(getByText('Task 2')).toBeInTheDocument();
+  });
+
+  it('adds a new todo', () => {
+    const setTodos = vi.fn();
+    const { getByPlaceholderText, rerender } = render(
+      <MainPage todos={[]} setTodos={setTodos} view="all" setView={() => { }} />
+    );
+
+    const input = getByPlaceholderText('What needs to be done?') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'New Task' } });
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+    const setStateCallback = setTodos.mock.calls[0][0];
+    const newTodos = setStateCallback([]);
+    rerender(<MainPage todos={newTodos} setTodos={setTodos} view="all" setView={() => { }} />);
+
+    expect(screen.queryByText('New Task')).toBeInTheDocument();
+  });
+
+  it('filters todos correctly', () => {
+    const { getByTestId, rerender } = render(
+      <MainPage todos={initialTodos} setTodos={() => { }} view="completed" setView={() => { }} />
+    );
+
+    expect(screen.queryByText('Task 2')).toBeInTheDocument();
+
+    fireEvent.click(getByTestId('filter-all'));
+    rerender(<MainPage todos={initialTodos} setTodos={() => { }} view="all" setView={() => { }} />);
+
+    expect(screen.queryByText('Task 1')).toBeInTheDocument();
+    expect(screen.queryByText('Task 2')).toBeInTheDocument();
 
 
-//   it('renders todos correctly', () => {
-//     const { getByText } = render(
-//       <MainPage todos={initialTodos} setTodos={() => { }} view="all" setView={() => { }} />
-//     );
+    fireEvent.click(getByTestId('filter-active'));
+    rerender(<MainPage todos={initialTodos} setTodos={() => { }} view="active" setView={() => { }} />);
 
-//     expect(getByText('Task 1')).toBeInTheDocument();
-//     expect(getByText('Task 2')).toBeInTheDocument();
-//   });
+    expect(screen.queryByText('Task 1')).toBeInTheDocument();
+    expect(screen.queryByText('Task 2')).not.toBeInTheDocument()
+  });
 
-//   it('adds a new todo', () => {
-//     const { getByPlaceholderText, getByText } = render(
-//       <MainPage todos={[]} setTodos={() => { }} view="all" setView={() => { }} />
-//     );
+  it('clears completed todos', () => {
+    const setTodosMock = vi.fn();
+    const { getByText } = render(
+      <MainPage todos={initialTodos} setTodos={setTodosMock} view="all" setView={() => { }} />
+    );
 
-//     const input = getByPlaceholderText('What needs to be done?') as HTMLInputElement;
-//     fireEvent.change(input, { target: { value: 'New Task' } });
-//     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+    fireEvent.click(getByText('Clear completed'));
+    expect(setTodosMock).toHaveBeenCalledWith([{ id: '1', label: 'Task 1', isComplete: false }]);
+  });
 
-//     expect(getByText('New Task')).toBeInTheDocument();
-//   });
+  it('changing view', () => {
+    const setViewMock = vi.fn();
 
-//   it('filters todos correctly', () => {
+    const { getByTestId } = render(
+      <MainPage todos={initialTodos} setTodos={() => { }} view="all" setView={setViewMock} />
+    );
 
-//     const { getByText, getByTestId } = render(
-//       <MainPage todos={initialTodos} setTodos={() => { }} view="completed" setView={() => { }} />
-//     );
-
-//     expect(getByText('Task 2')).toBeInTheDocument();
-
-//     fireEvent.click(getByTestId('filter-all'));
-//     expect(getByText('Task 1')).toBeInTheDocument();
-//     expect(getByText('Task 2')).toBeInTheDocument();
-
-//     fireEvent.click(getByTestId('filter-active'));
-//     expect(getByText('Task 1')).toBeInTheDocument();
-//     expect(getByText('Task 2')).not.toBeInTheDocument();
-//   });
-
-//   it('clears completed todos', () => {
-//     const setTodosMock = vi.fn();
-//     const { getByText } = render(
-//       <MainPage todos={initialTodos} setTodos={setTodosMock} view="all" setView={() => { }} />
-//     );
-
-//     fireEvent.click(getByText('Clear completed'));
-//     expect(setTodosMock).toHaveBeenCalledWith([{ id: '1', label: 'Task 1', isComplete: false }]);
-//   });
-// });
+    fireEvent.click(getByTestId('filter-active'));
+    expect(setViewMock).toHaveBeenCalledWith('active');
+  });
+});
