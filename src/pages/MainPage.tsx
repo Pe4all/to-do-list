@@ -3,7 +3,7 @@ import { ChangeEvent, useEffect, useState, type FC } from "react";
 import { Todo, View } from "../types";
 import { styled } from "styled-components";
 import Checkbox from "../components/Checkbox";
-import Button from "../components/button";
+import Button from "../components/Button";
 import Input from "../components/Input";
 
 const Wrapper = styled.div`
